@@ -1,11 +1,36 @@
-# Open-source Kortix project: one always-on agent for customer feedback.
+# yaml-language-server: $schema=https://kortix.com/schema/kortix.v3.schema.json
+#
+# Kortix project manifest: the one file that defines this project's agents.
+#
+# An open-source Kortix project: one agent on a steady customer-feedback job.
 # Every grant below is deliberate. An omitted grant resolves to none.
-kortix_version: 2
+kortix_version: 3
 default_agent: feedback
 
 agents:
   feedback:
-    file: agents/feedback.md
+    description: >-
+      Turns a week of customer feedback into plans a product team can act on,
+      one plan per recurring problem, and opens a change request for a person
+      to merge. Runs in an open-source Kortix project.
+    mode: primary
+    # The prompt is a plain markdown file with no frontmatter: whatever this
+    # file holds is the system prompt.
+    prompt_file: agents/feedback.md
+    # The job reads and writes files in this repository. Project repository
+    # access puts a checkout on the session's own branch in /workspace.
+    workspace: { project_repository: true }
+    # Per tool: allow, ask or deny. A tool left out is allowed, so the ones
+    # this job must not do on its own are written down. `bash: "*": ask` makes
+    # every shell command not listed below wait for a person.
+    permission:
+      edit: allow
+      bash:
+        "*": ask
+        "git status": allow
+        "git diff *": allow
+        "git log *": allow
+        "rm -rf *": deny
     # No connectors and no secrets: the agent reads files in this repository
     # and writes plans. Add a connector and a secret only when the job needs them.
     skills: [kortix-cli]
